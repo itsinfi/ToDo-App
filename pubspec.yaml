@@ -38,7 +38,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   firebase_core: ^2.1.0
-  firebase_auth: ^4.0.1
+  firebase_auth: ^4.0.0
   cloud_firestore: ^4.0.2
 
 dev_dependencies:
@@ -53,7 +53,7 @@ flutter_icons:
   image_path: "images/check.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
+  # encourage good coding practices. The lint set provided by the package isflutter
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
@@ -77,6 +77,7 @@ flutter:
 
   assets:
   - images/check.png
+  - images/check2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

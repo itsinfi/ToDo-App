@@ -27,7 +27,7 @@ class DetailScreen extends StatelessWidget {
                       ? 'Das hast du schon erledigt:'
                       : 'Das musst du noch machen:',
                   style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 30,
                       fontFamily: "Franklin Gothic Demi Cont",
                       fontWeight: FontWeight.w200,
                       color: Colors.white),
@@ -39,13 +39,17 @@ class DetailScreen extends StatelessWidget {
               child: Container(
                 alignment: Alignment.topCenter,
                 padding: const EdgeInsets.symmetric(horizontal: 50),
-                child: Text(
-                  entry,
-                  style: const TextStyle(
-                      fontSize: 50,
-                      fontFamily: "Franklin Gothic Demi Cont",
-                      fontWeight: FontWeight.w200,
-                      color: Colors.white),
+                child: Container(
+                  color: Color.fromRGBO(0, 0, 0, 0.2),
+                  child: Text(
+                    entry,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 40,
+                        fontFamily: "Franklin Gothic Demi Cont",
+                        fontWeight: FontWeight.w200,
+                        color: Colors.white),
+                  ),
                 ),
               ),
             ),

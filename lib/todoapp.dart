@@ -1,14 +1,19 @@
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'entry.dart';
 import 'databaseservice.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'frontpage.dart';
+import 'helpscreen.dart';
+import 'accountinfoscreen.dart';
 
 // ignore: must_be_immutable
 class ToDoApp extends StatefulWidget {
-  late String userid;
-  ToDoApp(this.userid, {super.key});
+  final String email;
+  final bool isLogin;
+  final UserCredential result;
+  final FirebaseAuth auth;
+  ToDoApp(this.email, this.isLogin, this.result, this.auth, {super.key});
 
   @override
   State<ToDoApp> createState() => _ToDoAppState();
@@ -99,33 +104,55 @@ class _ToDoAppState extends State<ToDoApp> {
     });
   }
 
+  Future<void> SignOut() async {
+    await widget.auth.signOut();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: ((context) => (LogInPage()))));
+  }
+
+  Widget LogOutButton() {
+    return ElevatedButton(
+      onPressed: SignOut,
+      child: Text(
+        'Abmelden.',
+        style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Franklin Gothic Demi Cont",
+            fontSize: 20,
+            fontWeight: FontWeight.w400),
+      ),
+    );
+  }
+
   Widget entryList(Map<String, dynamic> entries) {
     if (entries.isNotEmpty) {
       return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
         itemCount: entries.length,
         itemBuilder: (context, i) {
           String key = entries.keys.elementAt(i);
           if (!(key ==
               '"?§()%&/?"()%/?§"(/?="§/&"§=(%/&=(§%&/="§(%/&=(§"&/"§=(%&/(§=%/(="%§?&(=/?"§%&/(?"§?&(/"§?%(&/')) {
-            return Padding(
-              padding: const EdgeInsets.all(2),
-              child: Entry(
-                key,
-                entries[key]!,
-                () {
-                  deleteEntry(key);
-                },
-                () {
-                  toggleCheck(key, entries[key]!);
-                },
+            return Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(2),
+                child: Entry(
+                  key,
+                  entries[key]!,
+                  () {
+                    deleteEntry(key);
+                  },
+                  () {
+                    toggleCheck(key, entries[key]!);
+                  },
+                ),
               ),
-            );
+            ]);
           } else {
             return Container(
               color: Colors.transparent,
-              width: 0,
-              height: 0,
             );
           }
         },
@@ -136,11 +163,8 @@ class _ToDoAppState extends State<ToDoApp> {
   }
 
   Future<void> connectToFirebase() async {
-    await Firebase.initializeApp();
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    UserCredential result = await auth.signInAnonymously();
-    user = result.user!;
-    database = DatabaseService(widget.userid);
+    user = widget.result.user!;
+    database = DatabaseService(widget.email);
     if (!(await database.checkIfUserExists())) {
       database.setToDo(
           '"?§()%&/?"()%/?§"(/?="§/&"§=(%/&=(§%&/="§(%/&=(§"&/"§=(%&/(§=%/(="%§?&(=/?"§%&/(?"§?&(/"§?%(&/',
@@ -152,6 +176,7 @@ class _ToDoAppState extends State<ToDoApp> {
 
   @override
   Widget build(BuildContext context) {
+    //String userid = user.uid;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -164,36 +189,126 @@ class _ToDoAppState extends State<ToDoApp> {
         backgroundColor: Colors.deepPurple,
       ),
       backgroundColor: const Color.fromRGBO(70, 70, 70, 1),
-      body: FutureBuilder(
-          future: connectToFirebase(),
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return StreamBuilder<DocumentSnapshot>(
-                stream: (database.getToDos()),
-                builder: (BuildContext context,
-                    AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    Map<String, dynamic> entries =
-                        snapshot.data?.data() as Map<String, dynamic>;
-                    return entryList(entries);
-                  }
-                },
-              );
-            }
-          }),
-      floatingActionButton: FloatingActionButton(
+      body: /*ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        shrinkWrap: true,
+        scrollDirection: Axis.vertical,
+        children: <Widget>[
+          Container(
+        color: Colors.transparent,
+        height: 20,
+      ),*/
+          Column(
+        children: [
+          /*Row(
+            children: [*/
+          //Text(widget.result.user.toString()),
+          SizedBox(
+            width: double.infinity,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(Icons.account_box, size: 70),
+              onPressed: () {
+                MaterialPageRoute<Widget>(
+                  builder: (context) => AccountInfoScreen(),
+                );
+              },
+            ),
+          ),
+          /* ],
+          ),*/
+          FutureBuilder(
+            future: connectToFirebase(),
+            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return StreamBuilder<DocumentSnapshot>(
+                  stream: (database.getToDos()),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      Map<String, dynamic> entries =
+                          snapshot.data?.data() as Map<String, dynamic>;
+                      return entryList(entries);
+                    }
+                  },
+                );
+              }
+            },
+          ),
+        ],
+      ),
+      /*],
+      ),*/
+      bottomNavigationBar: /* BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings), label: 'Einstellungen'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'Info',
+          ),
+        ],
+        onTap
+      ),*/
+          Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          /*Text('Hallo $userid! Irgendwelche Fragen? Klick hier:'),*/
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              color: Color.fromRGBO(0, 0, 0, 0.1),
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.push<Widget>(
+                        context,
+                        MaterialPageRoute<Widget>(
+                          builder: (context) => HelpScreen(),
+                        ));
+                  },
+                  icon: Icon(Icons.question_mark, size: 20),
+                  padding: EdgeInsets.zero,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          LogOutButton(),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              color: Color.fromRGBO(0, 0, 0, 0.1),
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: IconButton(
+                  onPressed: newEntry,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(Icons.add, size: 25),
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      /*floatingActionButton: FloatingActionButton(
         onPressed: newEntry,
         child: const Icon(Icons.add),
         backgroundColor: Colors.deepPurple,
-      ),
+      ),*/
     );
   }
 }

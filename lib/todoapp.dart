@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'entry.dart';
 import 'databaseservice.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'frontpage.dart';
-import 'helpscreen.dart';
 import 'accountinfoscreen.dart';
+import 'entrylist.dart';
 
 // ignore: must_be_immutable
 class ToDoApp extends StatefulWidget {
   final String email;
-  final bool isLogin;
+  final bool isLogIn;
   final UserCredential result;
   final FirebaseAuth auth;
-  ToDoApp(this.email, this.isLogin, this.result, this.auth, {super.key});
+  final bool isFirstLogIn;
+  ToDoApp(this.email, this.isLogIn, this.result, this.auth, this.isFirstLogIn,
+      {super.key});
 
   @override
   State<ToDoApp> createState() => _ToDoAppState();
@@ -23,8 +24,8 @@ class _ToDoAppState extends State<ToDoApp> {
   late User user;
   late DatabaseService database;
   final GlobalKey<FormState> formkey = GlobalKey();
-  ScrollController controller = new ScrollController();
   String? item;
+  bool needHelp = false;
 
   void addEntry(String key) {
     setState(() {
@@ -95,12 +96,6 @@ class _ToDoAppState extends State<ToDoApp> {
         });
   }
 
-  void toggleCheck(String key, bool check) {
-    setState(() {
-      database.setToDo(key, !check);
-    });
-  }
-
   Future<void> SignOut() async {
     await widget.auth.signOut();
     Navigator.of(context).pushReplacement(
@@ -126,7 +121,7 @@ class _ToDoAppState extends State<ToDoApp> {
     );
   }
 
-  Widget HelpScreenButton() {
+  Widget HelpButton() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Container(
@@ -136,11 +131,8 @@ class _ToDoAppState extends State<ToDoApp> {
           height: 30,
           child: IconButton(
             onPressed: () {
-              Navigator.push<Widget>(
-                  context,
-                  MaterialPageRoute<Widget>(
-                    builder: (context) => HelpScreen(),
-                  ));
+              needHelp = !needHelp;
+              setState(() {});
             },
             icon: Icon(Icons.question_mark, size: 20),
             padding: EdgeInsets.zero,
@@ -174,39 +166,6 @@ class _ToDoAppState extends State<ToDoApp> {
     );
   }
 
-  Widget entryList(Map<String, dynamic> entries, DatabaseService database) {
-    if (entries.isNotEmpty) {
-      return ListView.builder(
-        physics: BouncingScrollPhysics(),
-        controller: controller,
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-        itemCount: entries.length,
-        itemBuilder: (context, i) {
-          String key = entries.keys.elementAt(i);
-          if (!(key ==
-              '"?§()%&/?"()%/?§"(/?="§/&"§=(%/&=(§%&/="§(%/&=(§"&/"§=(%&/(§=%/(="%§?&(=/?"§%&/(?"§?&(/"§?%(&/')) {
-            return Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(2),
-                child: Entry(key, entries[key]!, () {
-                  toggleCheck(key, entries[key]!);
-                }, database: database),
-              ),
-            ]);
-          } else {
-            return Container(
-              color: Colors.transparent,
-            );
-          }
-        },
-      );
-    } else {
-      return Container(color: const Color.fromRGBO(70, 70, 70, 1));
-    }
-  }
-
   Future<void> connectToFirebase() async {
     user = widget.result.user!;
     database = DatabaseService(widget.email);
@@ -217,6 +176,12 @@ class _ToDoAppState extends State<ToDoApp> {
     }
     Stream userDocumentStream = database.getToDos();
     userDocumentStream.listen((documentSnapshot) {});
+  }
+
+  @override
+  void initState() {
+    needHelp = widget.isFirstLogIn;
+    super.initState();
   }
 
   @override
@@ -252,7 +217,7 @@ class _ToDoAppState extends State<ToDoApp> {
                 } else {
                   Map<String, dynamic> entries =
                       snapshot.data?.data() as Map<String, dynamic>;
-                  return entryList(entries, database);
+                  return EntryList(entries, database, needHelp);
                 }
               },
             );
@@ -265,7 +230,7 @@ class _ToDoAppState extends State<ToDoApp> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            HelpScreenButton(),
+            HelpButton(),
             ViewAccountButton(),
             NewEntryButton(),
           ],

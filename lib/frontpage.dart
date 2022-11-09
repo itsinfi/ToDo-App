@@ -27,10 +27,10 @@ class _LogInPageState extends State<LogInPage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  void save(UserCredential result) {
+  void save(UserCredential result, bool isFirstLogIn) {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: ((context) =>
-            (ToDoApp(controllerEmail.text, isLogin, result, auth)))));
+        builder: ((context) => (ToDoApp(
+            controllerEmail.text, isLogin, result, auth, isFirstLogIn)))));
   }
 
 /*  void verify(UserCredential result) {
@@ -43,7 +43,7 @@ class _LogInPageState extends State<LogInPage> {
       if (email.isNotEmpty && password.isNotEmpty) {
         UserCredential result = await auth.signInWithEmailAndPassword(
             email: controllerEmail.text, password: controllerPassword.text);
-        save(result);
+        save(result, false);
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -57,7 +57,7 @@ class _LogInPageState extends State<LogInPage> {
       if (email.isNotEmpty && password.isNotEmpty) {
         UserCredential result = await auth.createUserWithEmailAndPassword(
             email: controllerEmail.text, password: controllerPassword.text);
-        save(result);
+        save(result, true);
       }
     } on FirebaseAuthException catch (e) {
       setState(() {

@@ -9,4 +9,4 @@ Hi there. This is my first ever project in flutter which i mainly use to learn a
 - Forgot Password with Reset link email (finished)
 - renaming items (finished)
 - fixing some issues with Log In not being consistent to give user the same itemlist (finished)
-- (planned: HelpScreen) 
+- help notes (finished)

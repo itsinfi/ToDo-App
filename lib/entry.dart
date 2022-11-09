@@ -6,24 +6,29 @@ import 'databaseservice.dart';
 class Entry extends StatefulWidget {
   late final String item;
   final bool check;
-  final Function deleteEntry;
   final Function toggleCheck;
   final DatabaseService database;
-  final GlobalKey<FormState> formkey = GlobalKey();
+  final GlobalKey<FormState>? formkey = GlobalKey();
+
   Entry(
     this.item,
     this.check,
-    this.deleteEntry,
     this.toggleCheck, {
     super.key,
     required this.database,
   });
+
+  void deleteEntry(String key) {
+    database.deleteToDo(key);
+  }
 
   @override
   State<Entry> createState() => _EntryState();
 }
 
 class _EntryState extends State<Entry> {
+  TextEditingController txtcontroller = TextEditingController();
+
   Widget textFormat() {
     if (widget.check == false) {
       return Text(
@@ -49,20 +54,20 @@ class _EntryState extends State<Entry> {
     }
   }
 
-  void save(String txt) {
-    //setState(() {
+  void saveRename() {
+    print(widget.item);
     widget.deleteEntry(widget.item);
-    widget.database.setToDo(txt, widget.check);
+    print(txtcontroller.text);
+    setState(() {
+      widget.database.setToDo(txtcontroller.text, widget.check);
+    });
     Navigator.of(context).pop();
-    //});
-    print('hallo');
   }
 
   void EntryItemChange() {
     showDialog<AlertDialog>(
         context: context,
         builder: (BuildContext context) {
-          String txt = '';
           return AlertDialog(
             title: const Text("Wie willst du die Erinnerung umbenennen?"),
             content: Column(
@@ -86,15 +91,12 @@ class _EntryState extends State<Entry> {
                         fontFamily: "Franklin Gothic Demi Cond",
                         fontWeight: FontWeight.w400,
                         fontSize: 16),
-                    onChanged: (value) {
-                      txt = value;
-                    },
+                    controller: txtcontroller,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Die Erinnerung darf nicht leer sein.';
-                      } else {
-                        return null;
                       }
+                      return null;
                     },
                   ),
                 ),
@@ -107,8 +109,9 @@ class _EntryState extends State<Entry> {
                   height: 40,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (widget.formkey.currentState!.validate()) {
-                        save(txt);
+                      if (widget.formkey!.currentState!.validate()) {
+                        saveRename();
+                        print('bruuuder');
                       }
                     },
                     child: const Text(
@@ -159,7 +162,7 @@ class _EntryState extends State<Entry> {
           ),
           IconButton(
             onPressed: () {
-              widget.deleteEntry();
+              widget.deleteEntry(widget.item);
             },
             icon: const Icon(Icons.delete_outlined),
           ),

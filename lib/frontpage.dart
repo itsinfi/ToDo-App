@@ -29,7 +29,8 @@ class _LogInPageState extends State<LogInPage> {
 
   void save(UserCredential result) {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: ((context) => (ToDoApp(email, isLogin, result, auth)))));
+        builder: ((context) =>
+            (ToDoApp(controllerEmail.text, isLogin, result, auth)))));
   }
 
 /*  void verify(UserCredential result) {
@@ -77,7 +78,6 @@ class _LogInPageState extends State<LogInPage> {
       bool isEmail) {
     return TextFormField(
       onChanged: (txt) {
-        isEmail ? email = text : password = text;
         text = txt;
       },
       obscureText: !isEmail,

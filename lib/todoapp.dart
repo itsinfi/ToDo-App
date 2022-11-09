@@ -95,10 +95,6 @@ class _ToDoAppState extends State<ToDoApp> {
         });
   }
 
-  void deleteEntry(String key) {
-    database.deleteToDo(key);
-  }
-
   void toggleCheck(String key, bool check) {
     setState(() {
       database.setToDo(key, !check);
@@ -195,8 +191,6 @@ class _ToDoAppState extends State<ToDoApp> {
               Padding(
                 padding: const EdgeInsets.all(2),
                 child: Entry(key, entries[key]!, () {
-                  deleteEntry(key);
-                }, () {
                   toggleCheck(key, entries[key]!);
                 }, database: database),
               ),

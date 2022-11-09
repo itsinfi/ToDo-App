@@ -1,8 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:todolist/frontpage.dart';
+/*import 'package:flutter/material.dart';
+import 'frontpage.dart';
 
-class CheckEmailPage extends StatelessWidget {
-  const CheckEmailPage({super.key});
+class VerifyEmailPage extends StatelessWidget {
+  final String email;
+  const VerifyEmailPage({
+    super.key,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +31,7 @@ class CheckEmailPage extends StatelessWidget {
                 height: 20,
                 color: Colors.transparent,
               ),
-              Image(image: AssetImage("images/check2.png")),
+              Image(image: AssetImage("assets/images/check2.png")),
               Container(
                 height: 50,
                 color: Colors.transparent,
@@ -44,7 +48,7 @@ class CheckEmailPage extends StatelessWidget {
                         color: Colors.transparent,
                       ),
                       Text(
-                        'Wir haben dir eine Email zum Rücksetzen deines Passwortes gesendet. Schaue in deinem Email-Postfach nach!',
+                        'Wir haben dir eine Email an $email zum Verifizieren deiner Email gesendet. Verfiziere deine Email und melde dich neu an um fortzufahren!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,
@@ -63,7 +67,7 @@ class CheckEmailPage extends StatelessWidget {
                                   builder: (context) => LogInPage()));
                         },
                         child: Text(
-                          'Zurück zum Log In',
+                          'Zurück zum LogIn',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Colors.white,
@@ -82,4 +86,4 @@ class CheckEmailPage extends StatelessWidget {
       ),
     );
   }
-}
+}*/

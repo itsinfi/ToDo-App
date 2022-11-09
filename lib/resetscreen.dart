@@ -182,7 +182,7 @@ class _ResetScreenState extends State<ResetScreen> {
                 height: 20,
                 color: Colors.transparent,
               ),
-              Image(image: AssetImage("images/check2.png")),
+              Image(image: AssetImage("assets/images/check2.png")),
               Container(
                 height: 50,
                 color: Colors.transparent,

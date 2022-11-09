@@ -3,6 +3,7 @@ import 'todoapp.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'resetsendemailscreen.dart';
+//import 'verifyemailpage.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -31,12 +32,16 @@ class _LogInPageState extends State<LogInPage> {
         builder: ((context) => (ToDoApp(email, isLogin, result, auth)))));
   }
 
+/*  void verify(UserCredential result) {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: ((context) => (VerifyEmailPage(email: email)))));
+  }*/
+
   Future<void> LogIn() async {
     try {
       if (email.isNotEmpty && password.isNotEmpty) {
         UserCredential result = await auth.signInWithEmailAndPassword(
-            email: controllerEmail.text.trim(),
-            password: controllerPassword.text.trim());
+            email: controllerEmail.text, password: controllerPassword.text);
         save(result);
       }
     } on FirebaseAuthException catch (e) {
@@ -50,8 +55,7 @@ class _LogInPageState extends State<LogInPage> {
     try {
       if (email.isNotEmpty && password.isNotEmpty) {
         UserCredential result = await auth.createUserWithEmailAndPassword(
-            email: controllerEmail.text.trim(),
-            password: controllerPassword.text.trim());
+            email: controllerEmail.text, password: controllerPassword.text);
         save(result);
       }
     } on FirebaseAuthException catch (e) {
@@ -259,7 +263,7 @@ class _LogInPageState extends State<LogInPage> {
                 height: 20,
                 color: Colors.transparent,
               ),
-              Image(image: AssetImage("images/check2.png")),
+              Image(image: AssetImage("assets/images/check2.png")),
               Container(
                 height: 50,
                 color: Colors.transparent,

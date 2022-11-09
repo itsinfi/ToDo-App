@@ -23,6 +23,7 @@ class _ToDoAppState extends State<ToDoApp> {
   late User user;
   late DatabaseService database;
   final GlobalKey<FormState> formkey = GlobalKey();
+  ScrollController controller = new ScrollController();
   String? item;
 
   void addEntry(String key) {
@@ -110,23 +111,78 @@ class _ToDoAppState extends State<ToDoApp> {
         MaterialPageRoute(builder: ((context) => (LogInPage()))));
   }
 
-  Widget LogOutButton() {
-    return ElevatedButton(
-      onPressed: SignOut,
-      child: Text(
-        'Abmelden.',
-        style: TextStyle(
+  Widget NewEntryButton() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        color: Color.fromRGBO(0, 200, 0, 1),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: IconButton(
+            onPressed: newEntry,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.add, size: 25),
             color: Colors.white,
-            fontFamily: "Franklin Gothic Demi Cont",
-            fontSize: 20,
-            fontWeight: FontWeight.w400),
+          ),
+        ),
       ),
     );
   }
 
-  Widget entryList(Map<String, dynamic> entries) {
+  Widget HelpScreenButton() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        color: Color.fromRGBO(0, 0, 0, 0.1),
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: IconButton(
+            onPressed: () {
+              Navigator.push<Widget>(
+                  context,
+                  MaterialPageRoute<Widget>(
+                    builder: (context) => HelpScreen(),
+                  ));
+            },
+            icon: Icon(Icons.question_mark, size: 20),
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget ViewAccountButton() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        color: Color.fromRGBO(0, 0, 0, 0.1),
+        child: SizedBox(
+          width: 35,
+          height: 35,
+          child: IconButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AccountInfoScreen(
+                      widget.email, widget.result, widget.auth)));
+            },
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.account_box, size: 30),
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget entryList(Map<String, dynamic> entries, DatabaseService database) {
     if (entries.isNotEmpty) {
       return ListView.builder(
+        physics: BouncingScrollPhysics(),
+        controller: controller,
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
@@ -138,16 +194,11 @@ class _ToDoAppState extends State<ToDoApp> {
             return Column(children: [
               Padding(
                 padding: const EdgeInsets.all(2),
-                child: Entry(
-                  key,
-                  entries[key]!,
-                  () {
-                    deleteEntry(key);
-                  },
-                  () {
-                    toggleCheck(key, entries[key]!);
-                  },
-                ),
+                child: Entry(key, entries[key]!, () {
+                  deleteEntry(key);
+                }, () {
+                  toggleCheck(key, entries[key]!);
+                }, database: database),
               ),
             ]);
           } else {
@@ -176,11 +227,10 @@ class _ToDoAppState extends State<ToDoApp> {
 
   @override
   Widget build(BuildContext context) {
-    //String userid = user.uid;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'ToDo',
+          'ToDos',
           style: TextStyle(
             fontFamily: "Franklin Gothic Demi Cond",
             fontWeight: FontWeight.w600,
@@ -189,126 +239,44 @@ class _ToDoAppState extends State<ToDoApp> {
         backgroundColor: Colors.deepPurple,
       ),
       backgroundColor: const Color.fromRGBO(70, 70, 70, 1),
-      body: /*ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
-        children: <Widget>[
-          Container(
-        color: Colors.transparent,
-        height: 20,
-      ),*/
-          Column(
-        children: [
-          /*Row(
-            children: [*/
-          //Text(widget.result.user.toString()),
-          SizedBox(
-            width: double.infinity,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.account_box, size: 70),
-              onPressed: () {
-                MaterialPageRoute<Widget>(
-                  builder: (context) => AccountInfoScreen(),
-                );
+      body: FutureBuilder(
+        future: connectToFirebase(),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return StreamBuilder<DocumentSnapshot>(
+              stream: (database.getToDos()),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  Map<String, dynamic> entries =
+                      snapshot.data?.data() as Map<String, dynamic>;
+                  return entryList(entries, database);
+                }
               },
-            ),
-          ),
-          /* ],
-          ),*/
-          FutureBuilder(
-            future: connectToFirebase(),
-            builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return StreamBuilder<DocumentSnapshot>(
-                  stream: (database.getToDos()),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      Map<String, dynamic> entries =
-                          snapshot.data?.data() as Map<String, dynamic>;
-                      return entryList(entries);
-                    }
-                  },
-                );
-              }
-            },
-          ),
-        ],
+            );
+          }
+        },
       ),
-      /*],
-      ),*/
-      bottomNavigationBar: /* BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Einstellungen'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'Info',
-          ),
-        ],
-        onTap
-      ),*/
-          Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          /*Text('Hallo $userid! Irgendwelche Fragen? Klick hier:'),*/
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              color: Color.fromRGBO(0, 0, 0, 0.1),
-              child: SizedBox(
-                width: 30,
-                height: 30,
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.push<Widget>(
-                        context,
-                        MaterialPageRoute<Widget>(
-                          builder: (context) => HelpScreen(),
-                        ));
-                  },
-                  icon: Icon(Icons.question_mark, size: 20),
-                  padding: EdgeInsets.zero,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          LogOutButton(),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              color: Color.fromRGBO(0, 0, 0, 0.1),
-              child: SizedBox(
-                width: 30,
-                height: 30,
-                child: IconButton(
-                  onPressed: newEntry,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.add, size: 25),
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
+      bottomNavigationBar: Container(
+        height: 45,
+        color: Color.fromRGBO(103, 58, 183, 0.8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            HelpScreenButton(),
+            ViewAccountButton(),
+            NewEntryButton(),
+          ],
+        ),
       ),
-      /*floatingActionButton: FloatingActionButton(
-        onPressed: newEntry,
-        child: const Icon(Icons.add),
-        backgroundColor: Colors.deepPurple,
-      ),*/
     );
   }
 }

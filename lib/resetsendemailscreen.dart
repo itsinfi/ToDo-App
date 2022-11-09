@@ -24,7 +24,7 @@ class _ResetSendEmailScreenState extends State<ResetSendEmailScreen> {
   Future<void> SendEmail() async {
     try {
       if (email.isNotEmpty) {
-        await auth.sendPasswordResetEmail(email: controllerEmail.text.trim());
+        await auth.sendPasswordResetEmail(email: controllerEmail.text);
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: ((context) => CheckEmailPage())));
       }
@@ -168,7 +168,7 @@ class _ResetSendEmailScreenState extends State<ResetSendEmailScreen> {
                 height: 20,
                 color: Colors.transparent,
               ),
-              Image(image: AssetImage("images/check2.png")),
+              Image(image: AssetImage("assets/images/check2.png")),
               Container(
                 height: 50,
                 color: Colors.transparent,

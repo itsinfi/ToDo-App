@@ -1,16 +1,12 @@
-# todolist
+# First Flutter Project - To Do App
 
-A new Flutter project.
 
-## Getting Started
+Hi there. This is my first ever project in flutter which i mainly use to learn and understand the basics of flutter. The project in its current form features:
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Adding, removing and marking items as checked in your To Do List
+- full Firebase integration
+- Sign/Log In via email and password (+Sign Out)
+- Forgot Password with Reset link email
+- planned: renaming items (work in progress)
+- planned: fixing some issues with Log In not being consistent to give user the same itemlist (work in progress)
+- (planned: HelpScreen) 
